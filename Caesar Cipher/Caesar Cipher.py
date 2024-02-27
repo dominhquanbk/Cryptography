@@ -1,13 +1,8 @@
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 ENGLISH_WORDS=set()
-#load english words:
-# def get_data():
-#     dictionary=open("D:\Code\Cryptography\Caesar Cipher\words_alpha.txt",'r')
-#     for word in dictionary.read().split('\n'):
-#         ENGLISH_WORDS.append(word)
-#     dictionary.close()
 def get_data():
     try:
+        #CHANGE THE PATH TO THE WORDS ALPHA 
         with open(r"D:\Code\Cryptography\Caesar Cipher\words_alpha.txt", 'r') as dictionary:
             for word in dictionary:
                 ENGLISH_WORDS.add(word.strip())  # Remove trailing newline characters
@@ -58,6 +53,7 @@ def crack(message):
         if (check_is_english(result)):
             print("the key is likely %s, and the message is %s" %(key,result))
             break
+            #change the path to the example.txt
 with open('D:\\Code\\Cryptography\\Caesar Cipher\\UTF-8\\example.txt', 'r') as file:
     # Read the entire content of the file
     plain_text = file.read()        
