@@ -1,29 +1,26 @@
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-ENGLISH_WORDS=set()
-#load english words:
+import re
+import time
+
+import matplotlib.pyplot as plt
+
+alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+            'v', 'w', 'x', 'y', 'z']
+
+ENGLISH_WORDS = []
+start_time = time.time()
+
+
+# load english words:
 def get_data():
     try:
-        with open(r"D:\Code\Cryptography\Caesar Cipher\words_alpha.txt", 'r') as dictionary:
+        with open("../words_alpha.txt", 'r') as dictionary:
             for word in dictionary:
-                ENGLISH_WORDS.add(word.strip())  # Remove trailing newline characters
+                # remove trailing newline characters
+                ENGLISH_WORDS.append(word.strip())
+            # sorted array for binary search
+            ENGLISH_WORDS.sort()
     except IOError:
         print("Error: Unable to read the file.")
-def count_english_word(text):
-    #transform into lower
-    text=text.lower()
-    #split them into list of word
-    words=text.split(" ")
-    matches=0
-    for word in words:
-        if word in ENGLISH_WORDS:
-            matches+=1
-    return matches
-def check_is_english(text):
-    matches=count_english_word(text)
-
-    if (float(matches)/len(text.split(' ')))*100>=70:
-        return True
-    return False
 
 
 def encrypt_rail_fence(text, rails):
@@ -41,105 +38,173 @@ def encrypt_rail_fence(text, rails):
         col += 1
 
     # Flatten the 2D fence into a 1D list and concatenate all characters
-    encrypted_text = ''.join(char for row in fence for char in row)
-    return encrypted_text
+    return ''.join(char for row in fence for char in row)
+
 
 def decrypt_rail_fence(cipher, key):
-    cipher=cipher.lower()
-    # create the matrix to cipher
-    # plain text key = rows ,
-    # length(text) = columns
-    # filling the rail matrix to
-    # distinguish filled spaces
-    # from blank ones
-    rail = [['\n' for i in range(len(cipher))]
-                for j in range(key)]
-     
-    # to find the direction
-    dir_down = None
+    if key <= 1 or key >= len(cipher):
+        return cipher
+
+    # matrix filled with \n to differentiate space with blank
+    rail = [['\n' for i in range(len(cipher))] for j in range(key)]
+
+    # direction of movement
+    dir_down = False
     row, col = 0, 0
-     
+    index = 0
+
     # mark the places with '*'
     for i in range(len(cipher)):
-        if row == 0:
-            dir_down = True
-        if row == key - 1:
-            dir_down = False
-         
         # place the marker
-        rail[row][col] = '*'
-        col += 1
-         
+        rail[row][col] = "*"
+
+        # check flow direction
+        if row == 0 or row == key - 1:
+            dir_down = not dir_down
+
         # find the next row
-        # using direction flag
         if dir_down:
             row += 1
         else:
             row -= 1
-             
-    # now we can construct the
+
+        # next col
+        col += 1
+
     # fill the rail matrix
-    index = 0
     for i in range(key):
         for j in range(len(cipher)):
-            if ((rail[i][j] == '*') and
-            (index < len(cipher))):
+            if (rail[i][j] == '*') and (index < len(cipher)):
                 rail[i][j] = cipher[index]
                 index += 1
-         
-    # now read the matrix in
-    # zig-zag manner to construct
-    # the resultant text
+
+    # read the matrix in zigzag manner then construct the resultant text
     result = []
+    dir_down = False
     row, col = 0, 0
+
     for i in range(len(cipher)):
-         
-        # check the direction of flow
-        if row == 0:
-            dir_down = True
-        if row == key-1:
-            dir_down = False
-             
         # place the marker
-        if (rail[row][col] != '*'):
-            result.append(rail[row][col])
-            col += 1
-             
-        # find the next row using
-        # direction flag
+        # if rail[row][col] != '*':
+        result.append(rail[row][col])
+
+        # check flow direction
+        if row == 0 or row == key - 1:
+            dir_down = not dir_down
+
+        # find next row
         if dir_down:
             row += 1
         else:
             row -= 1
-    return("".join(result))
+
+        # next col
+        col += 1
+
+    return "".join(result)
+
+
+def binary_search(arr, low, high, x):
+    # Check base case
+    if high >= low:
+
+        mid = (high + low) // 2
+
+        # If element is present at the middle itself
+        if arr[mid] == x:
+            return mid
+
+        # If element is smaller than mid, then it can only
+        # be present in left subarray
+        elif arr[mid] > x:
+            return binary_search(arr, low, mid - 1, x)
+
+        # Else the element can only be present in right subarray
+        else:
+            return binary_search(arr, mid + 1, high, x)
+
+    else:
+        # Element is not present in the array
+        return -1
+
+
+def count_english_word(words):
+    matches = 0
+
+    for word in words:
+        # regular expression check for uppercase character locations and special character
+        if not re.search("^[\"(]?[A-Za-z][a-z]*(-[a-z]+)*(\'([stdm]|ll))?[.,:;\")!?]?$", word):
+            continue
+        else:
+            # lowercase the word
+            processed_word = word.lower()
+            # remove acronym (n't, 'll, 'd, 's)
+            processed_word = re.sub('n\'t', '', processed_word)
+            processed_word = re.sub('\'([sdm]|ll)', '', processed_word)
+            # remove special character
+            processed_word = re.sub('[^A-Za-z0-9]+', '', processed_word)
+
+            if binary_search(ENGLISH_WORDS, 0, len(ENGLISH_WORDS) - 1, processed_word) != -1:
+                matches += 1
+
+    return matches
+
+
+def check_is_english(text):
+    # sample_index = min(len(text), 999999)
+
+    # sorted word array of sampled text
+    sample_array = text.split(" ")
+    english_count = count_english_word(sample_array)
+    # print("English count is: {0} words in total of {1} words.".format(english_count, len(sample_array)))
+
+    return english_count / len(sample_array)
+
 
 def crack(message):
-    #store list of all possible value
-    list_possible=[]
-    for key in range(200):
-        try:
-            result = decrypt_rail_fence(message, key)
-            if check_is_english(result):
-                list_possible.append((key, count_english_word(result)))   
-        except Exception as e:
-           
-            continue
-    #sort to get the key with highest words count
-    list_possible=sorted(list_possible,key=lambda x:x[1],reverse=True)
-    print(list_possible)
-    print("the key is likely %s"%list_possible[0][0])
-    print(decrypt_rail_fence(message,list_possible[0][0]))
+    # store list of all possible value
+    score_list = []
+    candidate_list = []
 
-# Example usage:
-# Specify the file path
-# Open the file in read mode ('r')
-with open('D:\\Code\\Cryptography\\Caesar Cipher\\UTF-8\\example.txt', 'r') as file:
+    key_range = len(message)
+    key = 0
+    key_nearby = False
+    while key < key_range:
+        decrypted_text = decrypt_rail_fence(message, key)
+        score = check_is_english(decrypted_text)
+
+        # set flag to stop the loop early
+        if score > 0.7:
+            if not key_nearby:
+                key_nearby = True
+                key_range = key + 25
+            candidate_list.append((key, score))
+
+        score_list.append((key, score))
+
+        print("Finished key {0}, score: {1}".format(key, score))
+        key += 1
+
+    # plot
+    plt.plot([pair[0] for pair in score_list], [pair[1] for pair in score_list])
+    plt.show()
+
+    # sort to get the key with the highest words count
+    candidate_list = sorted(candidate_list, key=lambda x: x[1], reverse=True)
+    print(candidate_list)
+    if len(candidate_list) > 0:
+        print("The key is likely %s" % candidate_list[0][0])
+        print(decrypt_rail_fence(message, candidate_list[0][0]))
+    else:
+        print("No key found!")
+
+
+# get plaintext
+with open('plaintext.txt', 'r') as file:
     # Read the entire content of the file
     plain_text = file.read()
 
-
-
-encrypted_text = encrypt_rail_fence(plain_text,167)
+encrypted_text = encrypt_rail_fence(plain_text, 120)
 get_data()
 crack(encrypted_text)
-
+print("--- %s seconds ---" % (time.time() - start_time))
