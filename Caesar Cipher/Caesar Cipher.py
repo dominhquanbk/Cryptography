@@ -1,66 +1,64 @@
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-ENGLISH_WORDS=set()
-def get_data():
-    try:
-        #CHANGE THE PATH TO THE WORDS ALPHA 
-        with open(r"D:\Code\Cryptography\Caesar Cipher\words_alpha.txt", 'r') as dictionary:
-            for word in dictionary:
-                ENGLISH_WORDS.add(word.strip())  # Remove trailing newline characters
-    except IOError:
-        print("Error: Unable to read the file.")
-def count_english_word(text):
-    #transform into lower
-    text=text.lower()
-    #split them into list of word
-    words=text.split(" ")
-    matches=0
-    for word in words:
-        if word in ENGLISH_WORDS:
-            matches+=1
-    return matches
-def check_is_english(text):
-    matches=count_english_word(text)
+import time
 
-    if (float(matches)/len(text.split(' ')))*100>=60:
-        return True
-    return False
+from utility import *
+
+start_time = time.time()
 
 
-def encrypt(message,key):
-    message=message.lower()
-    result=""
+def encrypt(message, key):
+    result = ""
     for x in message:
         if x not in alphabet:
-            result+=x
+            result += x
         else:
-            index=(alphabet.index(x)+key)%26
-            result+=alphabet[index]
+            index = (alphabet.index(x) + key) % 26
+            result += alphabet[index]
     return result
 
-def decrypt(message,key):
-    message=message.lower()
-    result=""
+
+def decrypt(message, key):
+    result = ""
     for x in message:
         if x not in alphabet:
-            result+=x
+            result += x
         else:
-            index=(alphabet.index(x)-key)%26
-            result+=alphabet[index]
+            index = (alphabet.index(x) - key) % 26
+            result += alphabet[index]
     return result
+
+
+def most_frequent_character(text):
+    return sorted([(a.lower(), text.count(a) if a.lower() in alphabet else 0) for a in text],
+                  key=lambda x: x[-1])[-1][0]
+
+
+frequency_alphabet = ['e', 't', 'a', 'o', 'i', 'n', 's', 'r', 'h', 'd', 'l', 'u', 'c', 'm', 'y', 'w', 'g', 'p', 'b',
+                      'v', 'k', 'x', 'q', 'j', 'z']
+
+
 def crack(message):
-    for key in range(len(alphabet)):
-        result=decrypt(message,key)    
-        if (check_is_english(result)):
-            print("the key is likely %s, and the message is %s" %(key,result))
-            break
-            #change the path to the example.txt
-with open('D:\\Code\\Cryptography\\Caesar Cipher\\UTF-8\\example.txt', 'r') as file:
+    most_frequent = most_frequent_character(message)
+    print('The most frequent letter is {0}'.format(most_frequent))
+
+    for char in frequency_alphabet:
+        index = min(1000, len(message))
+        key = alphabet.index(most_frequent) - alphabet.index(char)
+        result = decrypt(message[:index], key)
+        score = get_english_score(result)
+
+        if score > 0.85:
+            print("The key is likely %s, part of the message is %s" % (key, result))
+
+        print("Key {0} passed, score: {1}".format(key, score))
+
+
+# get plaintext
+with open('./plaintext.txt', 'r') as file:
     # Read the entire content of the file
-    plain_text = file.read()        
+    plain_text = file.read()
+
+encrypted_message = encrypt(plain_text, 69)
 get_data()
 
-encrypted_message=encrypt(plain_text,4)
-print(encrypted_message)
 crack(encrypted_message)
-# print(encrypt("This online utility encodes Unicode data to UTF-8 encoding. Anything that you paste or enter in the input area automatically gets converted to UTF-8 and is printed in the output area. It supports all Unicode symbols and it works with emoji characters. You can choose binary, octal, decimal, or hexadecimal output base for UTF-8 bytes or set an arbitrary base. You can also adjust the delimiter between the bytes and add a byte prefix",5))
-#crack("YMNX TSQNSJ ZYNQNYD JSHTIJX ZSNHTIJ IFYF YT ZYK-8 JSHTINSL. FSDYMNSL YMFY DTZ UFXYJ TW JSYJW NS YMJ NSUZY FWJF FZYTRFYNHFQQD LJYX HTSAJWYJI YT ZYK-8 FSI NX UWNSYJI NS YMJ TZYUZY FWJF. NY XZUUTWYX FQQ ZSNHTIJ XDRGTQX FSI NY BTWPX BNYM JRTON HMFWFHYJWX. DTZ HFS HMTTXJ GNSFWD, THYFQ, IJHNRFQ, TW MJCFIJHNRFQ TZYUZY GFXJ KTW ZYK-8 GDYJX TW XJY FS FWGNYWFWD GFXJ. DTZ HFS FQXT FIOZXY YMJ IJQNRNYJW GJYBJJS YMJ GDYJX FSI FII F GDYJ UWJKNC")
+print("--- %s seconds ---" % (time.time() - start_time))
