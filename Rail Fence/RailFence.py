@@ -1,9 +1,14 @@
 import math
+import os
+import sys
 import time
 
 import matplotlib.pyplot as plt
 
-from utility import *
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
+sys.path.append(PARENT_DIR)
+from utility import get_english_score, check_english_word, get_data
 
 start_time = time.time()
 
@@ -168,7 +173,7 @@ def crack(message):
 
 
 # get plaintext
-with open('plaintext.txt', 'r') as file:
+with open(CURRENT_DIR + '\\plaintext.txt', 'r') as file:
     # Read the entire content of the file
     plain_text = file.read()
 

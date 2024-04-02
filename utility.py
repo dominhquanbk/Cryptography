@@ -1,4 +1,7 @@
+import os
 import re
+
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
             'v', 'w', 'x', 'y', 'z']
@@ -9,7 +12,7 @@ ENGLISH_WORDS = []
 # load english words:
 def get_data():
     try:
-        with open("../words_alpha.txt", 'r') as dictionary:
+        with open(CURRENT_DIR + '\words_alpha.txt', 'r') as dictionary:
             for word in dictionary:
                 # remove trailing newline characters
                 ENGLISH_WORDS.append(word.strip())

@@ -1,6 +1,11 @@
+import os
+import sys
 import time
 
-from utility import *
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
+sys.path.append(PARENT_DIR)
+from utility import get_english_score, get_data, alphabet
 
 start_time = time.time()
 
@@ -53,11 +58,10 @@ def crack(message):
 
 
 # get plaintext
-with open('./plaintext.txt', 'r') as file:
+with open(CURRENT_DIR + '\\plaintext.txt', 'r') as file:
     # Read the entire content of the file
     plain_text = file.read()
-
-encrypted_message = encrypt(plain_text, 69)
+encrypted_message = encrypt(plain_text, 17)
 get_data()
 
 crack(encrypted_message)
