@@ -1,16 +1,6 @@
 import math
-import os
-import sys
-import time
-
 import matplotlib.pyplot as plt
-
-CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-PARENT_DIR = os.path.dirname(CURRENT_DIR)
-sys.path.append(PARENT_DIR)
-from utility import get_english_score, check_english_word, get_data
-
-start_time = time.time()
+from utility import get_english_score, check_english_word
 
 
 def encrypt_rail_fence(text, rails):
@@ -99,6 +89,7 @@ def decrypt_rail_fence(cipher, key):
 
 
 def prerequisite_check(text):
+    print(text)
     # high text length is required for stability(no proof)
     if len(text) < 1000:
         return 0
@@ -123,16 +114,16 @@ def prerequisite_check(text):
     return reverse_character_count
 
 
-def crack(message):
+def crack_rail_fence(message):
     # store list of all possible value
     score_list = []
     candidate_list = []
     bound_offset = math.ceil(len(message) / 20)
-    print("Message length is {}".format(len(message)))
 
+    # meaning: % of text where english score is > 80%
     prerequisite_score = prerequisite_check(message) / len(message)
     print("Prerequisite score is {}".format(prerequisite_score))
-    key_left_bound = math.ceil((prerequisite_score + 1) * len(message) / 2) \
+    key_left_bound = math.ceil((prerequisite_score + 1) * len(message) / 2) - bound_offset \
         if prerequisite_score > 0.2 else 0
     key_right_bound = len(message) \
         if (len(message) < 1000 or prerequisite_score > 0.2) \
@@ -150,7 +141,7 @@ def crack(message):
         if score > 0.85:
             if not key_nearby:
                 key_nearby = True
-                key_right_bound = min(key + bound_offset * 2, len(message))
+                key_right_bound = (key + bound_offset, len(message)) if len(message) >= 1000 else len(message)
             candidate_list.append((key, score))
 
         score_list.append((key, score))
@@ -168,17 +159,12 @@ def crack(message):
     if len(candidate_list) > 0:
         print("The key is likely %s" % candidate_list[0][0])
         print(decrypt_rail_fence(message, candidate_list[0][0]))
+        return candidate_list[0][0]
     else:
         print("No key found!")
+        return -1
 
 
-# get plaintext
-with open(CURRENT_DIR + '\\plaintext.txt', 'r') as file:
-    # Read the entire content of the file
-    plain_text = file.read()
-
-encrypted_text = encrypt_rail_fence(plain_text, 5600)
-get_data()
-
-crack(encrypted_text)
-print("--- %s seconds ---" % (time.time() - start_time))
+def run_rail_fence(plain_text, key):
+    encrypted_text = encrypt_rail_fence(plain_text, key)
+    crack_rail_fence(encrypted_text)

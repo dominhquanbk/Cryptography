@@ -1,8 +1,6 @@
 import os
 import re
 
-CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
             'v', 'w', 'x', 'y', 'z']
 
@@ -11,15 +9,20 @@ ENGLISH_WORDS = []
 
 # load english words:
 def get_data():
-    try:
-        with open(CURRENT_DIR + '\words_alpha.txt', 'r') as dictionary:
-            for word in dictionary:
-                # remove trailing newline characters
-                ENGLISH_WORDS.append(word.strip())
-            # sorted array for binary search
-            ENGLISH_WORDS.sort()
-    except IOError:
-        print("Error: Unable to read the file.")
+    if len(ENGLISH_WORDS) == 0:
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        try:
+            with open(current_dir + '\\words_alpha.txt', 'r') as dictionary:
+                for word in dictionary:
+                    # remove trailing newline characters
+                    ENGLISH_WORDS.append(word.strip())
+                # sorted array for binary search
+                ENGLISH_WORDS.sort()
+        except IOError:
+            print("Error: Unable to read the file.")
+
+
+get_data()
 
 
 def binary_search(arr, low, high, x):
