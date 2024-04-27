@@ -134,7 +134,7 @@ def crack_rail_fence(message):
         if (len(message) < 1000 or prerequisite_score > 0.2) \
         else min(math.ceil((prerequisite_score + 1) * len(message) / 2) + bound_offset, len(message))
 
-    print("Left bound is {0}, right bound is {1}".format(key_left_bound, key_right_bound))
+    print("Left bound is {0}, right bound is {1}\n".format(key_left_bound, key_right_bound))
 
     key = key_left_bound
     key_nearby = False
@@ -146,7 +146,7 @@ def crack_rail_fence(message):
         if score > 0.85:
             if not key_nearby:
                 key_nearby = True
-                key_right_bound = (key + bound_offset, len(message)) if len(message) >= 1000 else len(message)
+                key_right_bound = min(key + bound_offset, len(message)) if len(message) >= 1000 else len(message)
             candidate_list.append((key, score))
 
         score_list.append((key, score))
@@ -162,11 +162,12 @@ def crack_rail_fence(message):
     candidate_list = sorted(candidate_list, key=lambda x: x[1], reverse=True)
     print("\n List of candidate key: {}".format(candidate_list))
     if len(candidate_list) > 0:
-        print("The key is likely %s" % candidate_list[0][0])
+        print("The key is likely %s\n" % candidate_list[0][0])
         print(decrypt_rail_fence(message, candidate_list[0][0]))
+        print("")
         return candidate_list[0][0]
     else:
-        print("No key found!")
+        print("No key found!\n")
         return -1
 
 

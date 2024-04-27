@@ -40,7 +40,7 @@ def run_both(plain_text, rail_key, caesar_key):
 def main():
     while True:
         # cipher selection
-        print("////////// SELECT CIPHER (input is taken from text.txt ////////////")
+        print("////////// SELECT CIPHER (input is taken from text.txt) ////////////")
         print("1. Caesar")
         print("2. Rail Fence")
         print("3. Both")
