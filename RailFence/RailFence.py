@@ -1,5 +1,7 @@
 import math
+
 import matplotlib.pyplot as plt
+
 from utility import get_english_score, check_english_word
 
 
@@ -146,7 +148,7 @@ def crack_rail_fence(message):
 
         score_list.append((key, score))
 
-        print("Finished key {0}, score: {1}".format(key, score))
+        print("\rFinished key {0}, score: {1}".format(key, score), end=" ", flush=True)
         key += 1
 
     # plot
@@ -155,7 +157,7 @@ def crack_rail_fence(message):
 
     # sort to get the key with the highest words count
     candidate_list = sorted(candidate_list, key=lambda x: x[1], reverse=True)
-    print(candidate_list)
+    print("\n List of candidate key: {}".format(candidate_list))
     if len(candidate_list) > 0:
         print("The key is likely %s" % candidate_list[0][0])
         print(decrypt_rail_fence(message, candidate_list[0][0]))

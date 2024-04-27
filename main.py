@@ -1,14 +1,15 @@
-import time
 import os
 import sys
-from utility import get_english_score, check_english_word, alphabet
+import time
+
+from utility import alphabet
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(CURRENT_DIR)
 sys.path.append(CURRENT_DIR + '\\RailFence')
 sys.path.append(CURRENT_DIR + '\\Caesar')
-from RailFence import encrypt_rail_fence, run_rail_fence, prerequisite_check, crack_rail_fence
-from Caesar import encrypt_caesar, run_caesar, most_frequent_character, frequency_alphabet, decrypt_caesar
+from Caesar import encrypt_caesar, crack_caesar, run_caesar, most_frequent_character, frequency_alphabet, decrypt_caesar
+from RailFence import encrypt_rail_fence, crack_rail_fence, run_rail_fence
 
 
 def encrypt_both(text, rail_key, caesar_key):
@@ -26,7 +27,7 @@ def crack_both(message):
 
         result = crack_rail_fence(post_caesar)
         if result != -1:
-            print("The correct caesar pair is {0} - {1} ({2}), rail fence key is {3}".format(
+            print("The correct caesar pair likely is {0} - {1} ({2}), rail fence key is {3}".format(
                 most_frequent, char, key, result))
             return
 
@@ -37,17 +38,81 @@ def run_both(plain_text, rail_key, caesar_key):
 
 
 def main():
-    start_time = time.time()
-    with open(CURRENT_DIR + '\\plaintext.txt', 'r') as file:
-        # Read the entire content of the file
-        plain_text = file.read()
+    while True:
+        # cipher selection
+        print("////////// SELECT CIPHER (text is taken from text.txt ////////////")
+        print("1. Caesar")
+        print("2. Rail Fence")
+        print("3. Both")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+        if choice == '1' or choice == '2' or choice == '3':
+            # action and action validation
+            print("///// Select action: /////")
+            print("1. Encrypt text")
+            print("2. Crack text")
+            print("3. Encrypt and crack text")
+            action = input("Enter your choice: ")
+            if not (action == "1" or action == "2" or action == "3"):
+                print("Invalid action")
+                continue
 
-    print("Plaintext length is {}".format(len(plain_text)))
-    # encrypted_text = encrypt_both(plain_text, 3000, 17)
-    # print(encrypted_text)
-    run_both(plain_text, 600, 17)
+            # key and key validation
+            key1 = "0"
+            key2 = "0"
+            if action != "2":
+                if choice == '1' or choice == '3':
+                    key1 = input("/// Enter caesar key(number): ")
+                if choice == '2' or choice == '3':
+                    key2 = input("/// Enter rail fence key(number): ")
+                if not key1.isdigit() or not key2.isdigit():
+                    print("Invalid key")
+                    continue
+                key1 = int(key1)
+                key2 = int(key2)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+            # run
+            start_time = time.time()
+            with open(CURRENT_DIR + '\\text.txt', 'r') as file:
+                # Read the entire content of the file
+                text = file.read()
+
+            print("Text length is: {}".format(len(text)))
+
+            encrypt_text = ""
+            # encrypt only
+            if action == "1":
+                if choice == "1":
+                    encrypt_text = encrypt_caesar(text, key1)
+                elif choice == "2":
+                    encrypt_text = encrypt_rail_fence(text, key2)
+                else:
+                    encrypt_text = encrypt_both(text, key2, key1)
+                print("Encrypted text is is:\n{}".format(encrypt_text))
+            # crack from input
+            if action == "2":
+                if choice == "1":
+                    crack_caesar(text)
+                elif choice == "2":
+                    crack_rail_fence(text)
+                else:
+                    crack_both(text)
+            # encrypt and crack
+            elif action == "3":
+                if choice == "1":
+                    run_caesar(text, key1)
+                elif choice == "2":
+                    run_rail_fence(text, key2)
+                else:
+                    run_both(text, key2, key1)
+
+            print("--- %s seconds ---" % (time.time() - start_time))
+
+        elif choice == '4':
+            break
+        else:
+            print("Invalid answer")
+            continue
 
 
 main()
