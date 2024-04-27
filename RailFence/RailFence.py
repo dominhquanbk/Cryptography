@@ -6,6 +6,9 @@ from utility import get_english_score, check_english_word
 
 
 def encrypt_rail_fence(text, rails):
+    if rails <= 1 or rails >= len(text):
+        return text
+
     fence = [['' for _ in range(len(text))] for _ in range(rails)]
     direction = 1  # Direction of movement: 1 for down, -1 for up
     row, col = 0, 0

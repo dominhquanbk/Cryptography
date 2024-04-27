@@ -40,12 +40,13 @@ def run_both(plain_text, rail_key, caesar_key):
 def main():
     while True:
         # cipher selection
-        print("////////// SELECT CIPHER (text is taken from text.txt ////////////")
+        print("////////// SELECT CIPHER (input is taken from text.txt ////////////")
         print("1. Caesar")
         print("2. Rail Fence")
         print("3. Both")
         print("4. Exit")
         choice = input("Enter your choice: ")
+        print("")
         if choice == '1' or choice == '2' or choice == '3':
             # action and action validation
             print("///// Select action: /////")
@@ -56,6 +57,7 @@ def main():
             if not (action == "1" or action == "2" or action == "3"):
                 print("Invalid action")
                 continue
+            print("")
 
             # key and key validation
             key1 = "0"
@@ -70,6 +72,7 @@ def main():
                     continue
                 key1 = int(key1)
                 key2 = int(key2)
+                print("")
 
             # run
             start_time = time.time()
@@ -77,7 +80,7 @@ def main():
                 # Read the entire content of the file
                 text = file.read()
 
-            print("Text length is: {}".format(len(text)))
+            print("Text length is: {}\n".format(len(text)))
 
             encrypt_text = ""
             # encrypt only
@@ -88,7 +91,7 @@ def main():
                     encrypt_text = encrypt_rail_fence(text, key2)
                 else:
                     encrypt_text = encrypt_both(text, key2, key1)
-                print("Encrypted text is is:\n{}".format(encrypt_text))
+                print("Encrypted text is:\n{}".format(encrypt_text))
             # crack from input
             if action == "2":
                 if choice == "1":
@@ -106,13 +109,12 @@ def main():
                 else:
                     run_both(text, key2, key1)
 
-            print("--- %s seconds ---" % (time.time() - start_time))
+            print("\n--- %s seconds ---\n" % (time.time() - start_time))
 
         elif choice == '4':
             break
         else:
             print("Invalid answer")
             continue
-
 
 main()
