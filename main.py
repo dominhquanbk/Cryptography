@@ -40,7 +40,7 @@ def run_both(plain_text, rail_key, caesar_key):
 def main():
     while True:
         # cipher selection
-        print("////////// SELECT CIPHER (input is taken from text.txt) ////////////")
+        print("////////// SELECT CIPHER ////////////")
         print("1. Caesar")
         print("2. Rail Fence")
         print("3. Both")
@@ -50,9 +50,9 @@ def main():
         if choice == '1' or choice == '2' or choice == '3':
             # action and action validation
             print("///// Select action: /////")
-            print("1. Encrypt text")
-            print("2. Crack text")
-            print("3. Encrypt and crack text")
+            print("1. Encrypt text (input is taken from text.txt)")
+            print("2. Crack text (input is taken from encrypt.txt)")
+            print("3. Encrypt and crack text (both)")
             action = input("Enter your choice: ")
             if not (action == "1" or action == "2" or action == "3"):
                 print("Invalid action")
@@ -76,32 +76,40 @@ def main():
 
             # run
             start_time = time.time()
-            with open(CURRENT_DIR + '\\text.txt', 'r') as file:
-                # Read the entire content of the file
-                text = file.read()
+            in_file = open(CURRENT_DIR + '\\text.txt', 'r', encoding='utf-8')
+            out_file = open(CURRENT_DIR + '\\encrypt.txt', "r+", encoding='utf-8')
 
-            print("Text length is: {}\n".format(len(text)))
-
-            encrypt_text = ""
             # encrypt only
             if action == "1":
+                text = in_file.read()
+                print("Text length is: {}\n".format(len(text)))
+                encrypt_text = ""
                 if choice == "1":
                     encrypt_text = encrypt_caesar(text, key1)
                 elif choice == "2":
                     encrypt_text = encrypt_rail_fence(text, key2)
                 else:
                     encrypt_text = encrypt_both(text, key2, key1)
-                print("Encrypted text is:\n{}".format(encrypt_text))
+
+                print("Encrypted text is:\n{},".format(encrypt_text))
+                print("\nSaved in encrypt.txt")
+                out_file.write(encrypt_text)
+                out_file.close()
+
             # crack from input
             if action == "2":
+                text = out_file.read()
                 if choice == "1":
                     crack_caesar(text)
                 elif choice == "2":
                     crack_rail_fence(text)
                 else:
                     crack_both(text)
+
             # encrypt and crack
             elif action == "3":
+                text = in_file.read()
+                print("Text length is: {}\n".format(len(text)))
                 if choice == "1":
                     run_caesar(text, key1)
                 elif choice == "2":
@@ -116,5 +124,6 @@ def main():
         else:
             print("Invalid answer")
             continue
+
 
 main()
