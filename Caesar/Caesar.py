@@ -44,10 +44,13 @@ def crack_caesar(message):
 
         if score > 0.85:
             print(
-                "The correct pair is likely {0} - {1} ({2}), part of the message is: \n{3}".format(most_frequent, char,
-                                                                                                  key, result))
+                "The correct pair is likely {0} - {1} (forward {2} character), part of the message is:\n\n {3}".format(
+                    char, most_frequent,
+                    key if key > 0 else 26 + key, result))
+            break
 
-        print("\rCharacter pair {0} - {1} checked, score: {2}\n".format(most_frequent, char, score), end=" ", flush=True)
+        print("\rCharacter pair {1} => {0} checked, score: {2}\n".format(most_frequent, char, score), end=" ",
+              flush=True)
 
 
 def run_caesar(plain_text, key):
